@@ -1,0 +1,46 @@
+.tab-list {
+  .nav-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover {
+      .close-icon {
+        visibility: inherit;
+      }
+    }
+
+    &.active {
+      .close-icon {
+        visibility: inherit;
+      }
+    }
+    .close-icon {
+      visibility: hidden;
+    }
+
+    .rounded-circle {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      background: #d9534f;
+    }
+
+    &.with-unsaved {
+      .close-icon {
+        display: none;
+      }
+      .rounded-circle {
+        display: block;
+      }
+
+      &:hover {
+        .close-icon {
+          display: block;
+        }
+        .rounded-circle {
+          display: none;
+        }
+      }
+    }
+  }
+}
