@@ -11,7 +11,7 @@ const TabList = ({ files, activeId, unsaveIds, onTabClick, onCloseTab }) => {
     <div className='nav nav-pills tab-list'>
       {
         files.map(file => {
-          const withUnsaved = unsaveIds.includes(file.id);
+          const withUnsaved = unsaveIds.includes(file.id) || file.isNewStatus;
           const fClassName = classNames({
             'nav-link': true,
             'active': file.id === activeId,

@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const BottonBtn = ({ text, colorClass, icon, onBtnClick }) => {
   return (
-    <button type='button' className={`btn btn-block no-border ${colorClass}`}><FontAwesomeIcon title='关闭' icon={icon} onClick={onBtnClick} className='mr-2'/>{text}</button>
+    <button type='button' className={`btn btn-block no-border ${colorClass}`} onClick={onBtnClick}><FontAwesomeIcon title='关闭' icon={icon} className='mr-2'/>{text}</button>
   )
 }
 

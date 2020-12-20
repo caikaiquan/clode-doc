@@ -37,7 +37,20 @@ const FileList = ({ files, onClickFile,  onSaveEdit, onFileDelete }) => {
     if(editStatus){
       inputEl.current.focus()
     }
-  })
+  },[editStatus])
+
+  useEffect(() => {
+    files.forEach(file => {
+      if(file.isNewStatus){
+        setEditStatus(file.id)
+        setFileName(file.title)
+        // handleEdit(file)
+        inputEl.current.focus()
+      }
+    });
+  }, [files])
+
+
 
   return (
     <div className='file-list list-group list-group-flush file-list'>
@@ -45,7 +58,7 @@ const FileList = ({ files, onClickFile,  onSaveEdit, onFileDelete }) => {
         files.map((file) => (
           <div className='list-group-item bg-light d-flex align-items-center file-item row pointer mx-0' key={file.id}>
             {
-              editStatus !== file.id ?
+              editStatus !== file.id && !file.isNewStatus ?
                 (
                   <>
                     <span className='col-2'><FontAwesomeIcon icon={faMarkdown} /></span>
@@ -62,7 +75,7 @@ const FileList = ({ files, onClickFile,  onSaveEdit, onFileDelete }) => {
                 ) :
                 (
                   <>
-                    <input type="text" ref={inputEl} className='form-control col-10 input-line' value={fileName} onChange={(e) => { setFileName(e.target.value) }} />
+                    <input placeholder='请输入标题' type="text" ref={inputEl} className='form-control col-10 input-line' value={fileName} onChange={(e) => { setFileName(e.target.value) }} />
                     <button type='button' className='col-2 icon-button' onClick={closeEdit}><FontAwesomeIcon title='关闭' icon={faTimes} /></button>
                   </>
                 )
