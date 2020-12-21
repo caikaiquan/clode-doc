@@ -18,7 +18,9 @@ import './App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'easymde/dist/easymde.min.css'
 
-
+// nodejs 模块
+const fs = window.require('fs')
+console.dir(fs)
 
 const App = () => {
   const [files, setFiles] = useState(flattenArr(defaultFiles))
