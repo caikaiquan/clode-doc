@@ -11,6 +11,9 @@ import TabList from './components/TabList/TabList'
 // moke数据
 import defaultFiles from './utils/defaultFiles.js'
 
+// utils
+import { flattenArr, objToArr } from './utils/helper.js'
+
 import './App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'easymde/dist/easymde.min.css'
@@ -18,35 +21,34 @@ import 'easymde/dist/easymde.min.css'
 
 
 const App = () => {
-  const [files, setFiles] = useState(defaultFiles)
+  const [files, setFiles] = useState(flattenArr(defaultFiles))
   const [searchFiles, setSearchFiles] = useState([])
   const [activeFileID, setActiveFileId] = useState('')
   const [openFileIDs, setOpenFileIDs] = useState([])
   const [unsaveFileIds, setUnsaveFileIds] = useState([])
-  const openedFiles = openFileIDs.map(fileId => files.find(file => file.id === fileId))
-  const activeFile = files.find(file => file.id === activeFileID)
-  const showSearchFiles = searchFiles.length ? searchFiles : files
+  const openedFiles = openFileIDs.map(fileId => objToArr(files).find(file => file.id === fileId))
+  const activeFile = files[activeFileID]
+  const showSearchFiles = searchFiles.length ? searchFiles : objToArr(files)
   // 根据输入的内容筛选markdown列表
   const onFileSearch = (value) => {
-    const newFiles = files.filter(file => file.title.includes(value))
+    const newFiles = objToArr(files).filter(file => file.title.includes(value))
     setSearchFiles(newFiles)
   }
 
   // 编辑markdown文章的title
   const onSaveEdit = (id, name) => {
-    const newFiles = files.map(file => {
-      if(file.isNewStatus){
-        delete file.isNewStatus
-      }
-      return file.id === id ? { ...file, title: name } : file
-    })
-    setFiles(newFiles)
-
+    // files[id].title = name
+    let newFile = { ...files[id], title: name }
+    setFiles({ ...files, [id]: newFile })
   }
 
   // 删除左侧列表
   const onFileDelete = (id) => {
-    setFiles(files.filter(file => file.id !== id))
+    let objFiles = JSON.parse(JSON.stringify(files))
+    delete objFiles[id]
+    setFiles(objFiles)
+    // console.log(files,'files')
+    // setFiles(files.filter(file => file.id !== id))
   }
 
   // 点击右侧的tab切换显示markdown编辑器的内容
@@ -69,7 +71,7 @@ const App = () => {
 
   // 编辑markdown内容
   const handleEditMarkdown = (id, value) => {
-    const newFiles = files.map(file => {
+    const newFiles = objToArr(files).map(file => {
       if (file.id === id && file.body !== value) {
         setUnsaveFileIds([...new Set([...unsaveFileIds, id])])
         return { ...file, body: value }
@@ -82,9 +84,9 @@ const App = () => {
 
   // 新建markdown
   const handleAddNewFile = () => {
-    if(files.find(file => file.isNewStatus)){
-      return
-    }
+    // if(files.find(file => file.isNewStatus)){
+    //   return
+    // }
     // 生成新的id
     const newId = uuidv4()
     const newFile = {
@@ -95,8 +97,8 @@ const App = () => {
       isNewStatus: true,
     }
     setActiveFileId(newId)
-    setOpenFileIDs([...openFileIDs,newId])
-    setFiles([...files, newFile])
+    setOpenFileIDs([...openFileIDs, newId])
+    setFiles({ ...files, newId: newFile })
   }
 
   useEffect(() => {
