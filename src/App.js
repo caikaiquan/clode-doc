@@ -18,9 +18,36 @@ import './App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'easymde/dist/easymde.min.css'
 
+// 文件操作 fileHelper.js
+import fileHelper from './utils/fileHelper.js'
+
 // nodejs 模块
-const fs = window.require('fs')
-console.dir(fs)
+const { join } = window.require('path')
+const { remote } = window.require('electron')
+const saveLocation = remote.app.getPath('documents')+'/markdown/'
+// console.log(remote.app.getPath('documents'))
+// console.log(remote.app.getPath('home'))
+// console.log(join(saveLocation,'index.md'))
+const Store = window.require('electron-store')
+const fileStore = new Store({'name':'Files Data'})
+// store.set('name','张三丰')
+// store.delete('name')
+// console.log(store.get('name'),'store-name')
+
+// 存储文件数据到store
+const saveFilesToStore = (files) => {
+  const filesStoreObj = objToArr(files).reduce((result,file) => {
+    const { id, path, title, createdAt } = file;
+    result[id] = {
+      id,
+      path,
+      title,
+      createdAt
+    }
+    return result
+  },{})
+  fileStore.set('files',filesStoreObj)
+}
 
 const App = () => {
   const [files, setFiles] = useState(flattenArr(defaultFiles))
@@ -28,12 +55,12 @@ const App = () => {
   const [activeFileID, setActiveFileId] = useState('')
   const [openFileIDs, setOpenFileIDs] = useState([])
   const [unsaveFileIds, setUnsaveFileIds] = useState([])
-  const openedFiles = openFileIDs.map(fileId => {return objToArr(files).find(file => file.id === fileId)} )
+  const openedFiles = openFileIDs.map(fileId => { return objToArr(files).find(file => file.id === fileId) })
   const activeFile = files[activeFileID]
   const showSearchFiles = searchFiles.length ? searchFiles : objToArr(files)
   // 根据输入的内容筛选markdown列表
   const onFileSearch = (value) => {
-    if(!value){
+    if (!value) {
       setSearchFiles([])
       return
     }
@@ -44,14 +71,20 @@ const App = () => {
   // 编辑markdown文章的title
   const onSaveEdit = (id, name) => {
     files[id]['title'] = name;
-    files[id].isNewStatus && delete files[id].isNewStatus
-    setFiles({...files})
+    // 如果是新建文件
+    if (files[id].isNewStatus) {
+      delete files[id].isNewStatus
+      fileHelper.writeFile(join(saveLocation, `${name}.md`), 'Hello World')
+        .then(() => { console.log('write-success') })
+        .catch(err => { console.log(err) })
+    }
+    setFiles({ ...files })
   }
 
   // 删除左侧列表
   const onFileDelete = (id) => {
     delete files[id]
-    setFiles({...files})
+    setFiles({ ...files })
   }
 
   // 点击右侧的tab切换显示markdown编辑器的内容
@@ -68,7 +101,7 @@ const App = () => {
 
   // 选择文件添加到编辑的tab栏
   const onClickFile = (id) => {
-    if(!openFileIDs.includes(id)){
+    if (!openFileIDs.includes(id)) {
       setOpenFileIDs([...openFileIDs, id])
     }
     setActiveFileId(id)
@@ -78,7 +111,7 @@ const App = () => {
   const handleEditMarkdown = (id, value) => {
     files[id].body !== value && setUnsaveFileIds([...new Set([...unsaveFileIds, id])])
     files[id]['body'] = value;
-    setFiles({...files})
+    setFiles({ ...files })
   }
 
   // 新建markdown
@@ -97,6 +130,21 @@ const App = () => {
     setFiles({ ...files, [newId]: newFile })
   }
 
+  // 保存markdown
+  const handleSaveFile = () => {
+    if(!activeFileID || !unsaveFileIds.includes(activeFileID)){
+      return
+    }
+    let title = files[activeFileID].title;
+    let content = files[activeFileID].body;
+    fileHelper.writeFile(join(saveLocation, `${title}.md`), content)
+        .then(() => { 
+          console.log('write-success')
+          setUnsaveFileIds(unsaveFileIds.filter(id => id !== activeFileID))
+        })
+        .catch(err => { console.log(err) })
+  }
+
   return (
     <div className="App container-fluid px-0">
       <div className='row no-gutters'>
@@ -108,7 +156,7 @@ const App = () => {
               <BottonBtn text='新建' colorClass='btn-primary no-border' icon={faPlus} onBtnClick={handleAddNewFile}></BottonBtn>
             </div>
             <div className='col'>
-              <BottonBtn text='导入' colorClass='btn-success no-border' icon={faFileImport}></BottonBtn>
+              <BottonBtn text='导入' colorClass='btn-success no-border' icon={faFileImport} onBtnClick={handleSaveFile}></BottonBtn>
             </div>
           </div>
         </div>

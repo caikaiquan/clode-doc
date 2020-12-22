@@ -1,5 +1,4 @@
-const fs = require('fs').promises
-const path = require('path')
+const fs = window.require('fs').promises
 const fileHelper = {
   readFile: (path) => {
     return fs.readFile(path, { encoding: 'utf8' })
@@ -14,3 +13,5 @@ const fileHelper = {
     return fs.unlink(path)
   }
 }
+
+export default fileHelper
