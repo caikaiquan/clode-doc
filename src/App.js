@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import SimpleMDE from 'react-simplemde-editor'
 import { faPlus, faFileImport } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid';
@@ -28,29 +28,30 @@ const App = () => {
   const [activeFileID, setActiveFileId] = useState('')
   const [openFileIDs, setOpenFileIDs] = useState([])
   const [unsaveFileIds, setUnsaveFileIds] = useState([])
-  const openedFiles = openFileIDs.map(fileId => objToArr(files).find(file => file.id === fileId))
+  const openedFiles = openFileIDs.map(fileId => {return objToArr(files).find(file => file.id === fileId)} )
   const activeFile = files[activeFileID]
   const showSearchFiles = searchFiles.length ? searchFiles : objToArr(files)
   // 根据输入的内容筛选markdown列表
   const onFileSearch = (value) => {
+    if(!value){
+      setSearchFiles([])
+      return
+    }
     const newFiles = objToArr(files).filter(file => file.title.includes(value))
     setSearchFiles(newFiles)
   }
 
   // 编辑markdown文章的title
   const onSaveEdit = (id, name) => {
-    // files[id].title = name
-    let newFile = { ...files[id], title: name }
-    setFiles({ ...files, [id]: newFile })
+    files[id]['title'] = name;
+    files[id].isNewStatus && delete files[id].isNewStatus
+    setFiles({...files})
   }
 
   // 删除左侧列表
   const onFileDelete = (id) => {
-    let objFiles = JSON.parse(JSON.stringify(files))
-    delete objFiles[id]
-    setFiles(objFiles)
-    // console.log(files,'files')
-    // setFiles(files.filter(file => file.id !== id))
+    delete files[id]
+    setFiles({...files})
   }
 
   // 点击右侧的tab切换显示markdown编辑器的内容
@@ -67,28 +68,21 @@ const App = () => {
 
   // 选择文件添加到编辑的tab栏
   const onClickFile = (id) => {
+    if(!openFileIDs.includes(id)){
+      setOpenFileIDs([...openFileIDs, id])
+    }
     setActiveFileId(id)
-    setOpenFileIDs([...new Set([...openFileIDs, id])])
   }
 
   // 编辑markdown内容
   const handleEditMarkdown = (id, value) => {
-    const newFiles = objToArr(files).map(file => {
-      if (file.id === id && file.body !== value) {
-        setUnsaveFileIds([...new Set([...unsaveFileIds, id])])
-        return { ...file, body: value }
-      } else {
-        return file
-      }
-    })
-    setFiles(newFiles)
+    files[id].body !== value && setUnsaveFileIds([...new Set([...unsaveFileIds, id])])
+    files[id]['body'] = value;
+    setFiles({...files})
   }
 
   // 新建markdown
   const handleAddNewFile = () => {
-    // if(files.find(file => file.isNewStatus)){
-    //   return
-    // }
     // 生成新的id
     const newId = uuidv4()
     const newFile = {
@@ -100,12 +94,8 @@ const App = () => {
     }
     setActiveFileId(newId)
     setOpenFileIDs([...openFileIDs, newId])
-    setFiles({ ...files, newId: newFile })
+    setFiles({ ...files, [newId]: newFile })
   }
-
-  useEffect(() => {
-
-  }, [])
 
   return (
     <div className="App container-fluid px-0">
@@ -141,6 +131,7 @@ const App = () => {
                   />
                   <SimpleMDE
                     value={activeFile.body}
+                    key={activeFile.id}
                     onChange={(value) => { handleEditMarkdown(activeFile.id, value) }}
                     options={{
                       minHeight: '460px',
