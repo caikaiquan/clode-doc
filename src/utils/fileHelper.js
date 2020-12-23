@@ -6,8 +6,8 @@ const fileHelper = {
   writeFile: (path, content) => {
     return fs.writeFile(path, content, { encoding: 'utf8' })
   },
-  renameFile: (path, newPath) => {
-    return fs.rename(path, newPath)
+  renameFile: (oldpath, newPath) => {
+    return fs.rename(oldpath, newPath)
   },
   deleteFile: (path) => {
     return fs.unlink(path)

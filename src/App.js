@@ -24,19 +24,19 @@ import fileHelper from './utils/fileHelper.js'
 // nodejs 模块
 const { join } = window.require('path')
 const { remote } = window.require('electron')
-const saveLocation = remote.app.getPath('documents')+'/markdown/'
+const saveLocation = remote.app.getPath('documents') + '/markdown/'
 // console.log(remote.app.getPath('documents'))
 // console.log(remote.app.getPath('home'))
 // console.log(join(saveLocation,'index.md'))
 const Store = window.require('electron-store')
-const fileStore = new Store({'name':'Files Data'})
+const fileStore = new Store({ 'name': 'Files Data' })
 // store.set('name','张三丰')
 // store.delete('name')
 // console.log(store.get('name'),'store-name')
 
 // 存储文件数据到store
 const saveFilesToStore = (files) => {
-  const filesStoreObj = objToArr(files).reduce((result,file) => {
+  const filesStoreObj = objToArr(files).reduce((result, file) => {
     const { id, path, title, createdAt } = file;
     result[id] = {
       id,
@@ -45,12 +45,12 @@ const saveFilesToStore = (files) => {
       createdAt
     }
     return result
-  },{})
-  fileStore.set('files',filesStoreObj)
+  }, {})
+  fileStore.set('files', filesStoreObj)
 }
 
 const App = () => {
-  const [files, setFiles] = useState(flattenArr(defaultFiles))
+  const [files, setFiles] = useState(fileStore.get('files'))
   const [searchFiles, setSearchFiles] = useState([])
   const [activeFileID, setActiveFileId] = useState('')
   const [openFileIDs, setOpenFileIDs] = useState([])
@@ -70,14 +70,25 @@ const App = () => {
 
   // 编辑markdown文章的title
   const onSaveEdit = (id, name) => {
-    files[id]['title'] = name;
     // 如果是新建文件
+    const newPath = join(saveLocation, `${name}.md`);
+    const oldPath = join(saveLocation, `${files[id]['title']}.md`);
+    files[id]['path'] = newPath;
     if (files[id].isNewStatus) {
+      files[id]['title'] = name;
       delete files[id].isNewStatus
-      fileHelper.writeFile(join(saveLocation, `${name}.md`), 'Hello World')
+      fileHelper.writeFile(newPath, files[id].body)
         .then(() => { console.log('write-success') })
         .catch(err => { console.log(err) })
+    } else {
+      fileHelper.renameFile(oldPath, newPath)
+        .then(() => {
+          console.log('rename-success');
+          files[id]['title'] = name;
+        })
+        .catch(err => { console.log(err) })
     }
+    saveFilesToStore(files)
     setFiles({ ...files })
   }
 
@@ -101,9 +112,22 @@ const App = () => {
 
   // 选择文件添加到编辑的tab栏
   const onClickFile = (id) => {
+    // 如果有正在新建的文件不能再新建
+    if(activeFileID && files[activeFileID]['isNewStatus']){
+      return
+    }
     if (!openFileIDs.includes(id)) {
       setOpenFileIDs([...openFileIDs, id])
     }
+    const currentFile = files[id]
+    if(!currentFile['body']) {
+      fileHelper.readFile(currentFile['path'])
+      .then(body => {
+        currentFile['body'] = body
+        setFiles({...files, [id]: currentFile })
+      })
+    }
+
     setActiveFileId(id)
   }
 
@@ -116,6 +140,10 @@ const App = () => {
 
   // 新建markdown
   const handleAddNewFile = () => {
+    // 如果有正在新建的文件不能再新建
+    if(activeFileID && files[activeFileID]['isNewStatus']){
+      return
+    }
     // 生成新的id
     const newId = uuidv4()
     const newFile = {
@@ -132,17 +160,17 @@ const App = () => {
 
   // 保存markdown
   const handleSaveFile = () => {
-    if(!activeFileID || !unsaveFileIds.includes(activeFileID)){
+    if (!activeFileID || !unsaveFileIds.includes(activeFileID)) {
       return
     }
     let title = files[activeFileID].title;
     let content = files[activeFileID].body;
     fileHelper.writeFile(join(saveLocation, `${title}.md`), content)
-        .then(() => { 
-          console.log('write-success')
-          setUnsaveFileIds(unsaveFileIds.filter(id => id !== activeFileID))
-        })
-        .catch(err => { console.log(err) })
+      .then(() => {
+        console.log('write-success')
+        setUnsaveFileIds(unsaveFileIds.filter(id => id !== activeFileID))
+      })
+      .catch(err => { console.log(err) })
   }
 
   return (
