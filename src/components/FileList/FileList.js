@@ -80,7 +80,7 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
         console.log('删除3333' , clickedItem)
       }
     }
-  ], 'file-list')
+  ], '.file-list')
 
   return (
     <div className='file-list list-group list-group-flush file-list'>
