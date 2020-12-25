@@ -4,8 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 import useKeyPress from '../../hooks/useKeyPress.js'
+import useContextMenu from '../../hooks/useContextMenu.js'
 
-const FileList = ({ files, onClickFile,  onSaveEdit, onFileDelete }) => {
+// 引入node模块 Menu  MenuItem
+
+// const { remote } = window.require('electron')
+// const { Menu, MenuItem } = remote;
+
+
+const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
 
   const [editStatus, setEditStatus] = useState('');
   const [fileName, setFileName] = useState('');
@@ -17,40 +24,63 @@ const FileList = ({ files, onClickFile,  onSaveEdit, onFileDelete }) => {
     setFileName(file.title)
   }
 
-  const closeEdit = () => {
+  const closeEdit = (file) => {
     setEditStatus('')
     setFileName('')
+    if (file && !file.title && file.isNewStatus) {
+      onFileDelete(file.id)
+    }
   }
 
   useEffect(() => {
-    if(enterPressed && editStatus){
+    if (enterPressed && editStatus) {
       onSaveEdit(editStatus, fileName);
       closeEdit()
     }
 
-    if(escPressed && editStatus){
+    if (escPressed && editStatus) {
       closeEdit()
     }
   })
 
   useEffect(() => {
-    if(editStatus){
+    if (editStatus) {
       inputEl.current.focus()
     }
-  },[editStatus])
+  }, [editStatus])
 
   useEffect(() => {
     files.forEach(file => {
-      if(file.isNewStatus){
+      if (file.isNewStatus) {
         setEditStatus(file.id)
         setFileName(file.title)
-        // handleEdit(file)
-        inputEl.current.focus()
+        if (inputEl.current) {
+          inputEl.current.focus()
+        }
       }
     });
   }, [files])
 
-
+  const clickedItem = useContextMenu([
+    {
+      label: '打开',
+      click: () => {
+        console.log('点击了打开按钮' , clickedItem)
+      }
+    },
+    {
+      label: '重命名',
+      click: () => {
+        console.log('111重命名' , clickedItem)
+      }
+    },
+    {
+      label: '删除',
+      click: () => {
+        console.log('删除3333' , clickedItem)
+      }
+    }
+  ], 'file-list')
 
   return (
     <div className='file-list list-group list-group-flush file-list'>
@@ -58,7 +88,7 @@ const FileList = ({ files, onClickFile,  onSaveEdit, onFileDelete }) => {
         files.map((file) => (
           <div className='list-group-item bg-light d-flex align-items-center file-item row pointer mx-0' key={file.id}>
             {
-              editStatus !== file.id && !file.isNewStatus ?
+              editStatus !== file.id ?
                 (
                   <>
                     <span className='col-2'><FontAwesomeIcon icon={faMarkdown} /></span>
@@ -76,7 +106,7 @@ const FileList = ({ files, onClickFile,  onSaveEdit, onFileDelete }) => {
                 (
                   <>
                     <input placeholder='请输入标题' type="text" ref={inputEl} className='form-control col-10 input-line' value={fileName} onChange={(e) => { setFileName(e.target.value) }} />
-                    <button type='button' className='col-2 icon-button' onClick={closeEdit}><FontAwesomeIcon title='关闭' icon={faTimes} /></button>
+                    <button type='button' className='col-2 icon-button' onClick={() => { closeEdit(file) }}><FontAwesomeIcon title='关闭' icon={faTimes} /></button>
                   </>
                 )
             }
