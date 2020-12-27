@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import useKeyPress from '../../hooks/useKeyPress.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons'
+import useIpcRenderer from '../../hooks/useIpcRenderer.js'
 
 import './FileSearch.less'
 
@@ -35,6 +36,10 @@ const FileSearch = ({ title, onFileSearch }) => {
     if (inputActive) {
       inputEl.current.focus()
     }
+  })
+
+  useIpcRenderer({
+    'search-file': openSearch
   })
 
   return (

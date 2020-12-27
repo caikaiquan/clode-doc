@@ -7,6 +7,7 @@ import FileSearch from './components/FileSearch/FileSearch.js'
 import FileList from './components/FileList/FileList.js'
 import BottonBtn from './components/BottonBtn/BottonBtn'
 import TabList from './components/TabList/TabList'
+import useIpcRenderer from './hooks/useIpcRenderer.js'
 
 // // moke数据
 // import defaultFiles from './utils/defaultFiles.js'
@@ -21,15 +22,19 @@ import 'easymde/dist/easymde.min.css'
 // 文件操作 fileHelper.js
 import fileHelper from './utils/fileHelper.js'
 
+
 // nodejs 模块
 const { join, basename, extname, dirname } = window.require('path')
 const { remote } = window.require('electron')
-const saveLocation = remote.app.getPath('documents') + '/markdown/'
 // console.log(remote.app.getPath('documents'))
 // console.log(remote.app.getPath('home'))
 // console.log(join(saveLocation,'index.md'))
 const Store = window.require('electron-store')
 const fileStore = new Store({ 'name': 'Files Data' })
+const settingsStore = new Store({name: 'Settings'})
+const saveLocation = remote.app.getPath('documents') + '/markdown/'
+console.log(settingsStore.get('saveFileLocation'),'path')
+
 // store.set('name','张三丰')
 // store.delete('name')
 // console.log(store.get('name'),'store-name')
@@ -76,7 +81,8 @@ const App = () => {
   const onSaveEdit = (id, name) => {
     // 如果是新建文件
     if (files[id].isNewStatus) {
-      const newPath = join(saveLocation, `${name}.md`)
+      let path = settingsStore.get('saveFileLocation') || saveLocation
+      const newPath = join(path, `${name}.md`)
       files[id]['path'] = newPath;
       files[id]['title'] = name;
       delete files[id].isNewStatus
@@ -191,9 +197,10 @@ const App = () => {
     if (!activeFileID || !unsaveFileIds.includes(activeFileID)) {
       return
     }
-    let title = files[activeFileID].title;
-    let content = files[activeFileID].body;
-    fileHelper.writeFile(join(saveLocation, `${title}.md`), content)
+    const title = files[activeFileID].title;
+    const content = files[activeFileID].body;
+    const path = settingsStore.get('saveFileLocation') || saveLocation
+    fileHelper.writeFile(join(path, `${title}.md`), content)
       .then(() => {
         console.log('write-success')
         setUnsaveFileIds(unsaveFileIds.filter(id => id !== activeFileID))
@@ -239,6 +246,22 @@ const App = () => {
         console.log(err)
       })
   }
+
+  // useEffect(() => {
+  //   const callback = () => {
+  //     console.log('hello from menu')
+  //   }
+  //   ipcRenderer.on('create-new-file',callback)
+  //   return () => {
+  //     ipcRenderer.removeListener('create-new-file',callback)
+  //   }
+  // })
+
+  useIpcRenderer({
+    'create-new-file': handleAddNewFile,
+    'import-file': handleImportFile,
+    'save-edit-file': handleSaveFile
+  })
 
   return (
     <div className="App container-fluid px-0">
