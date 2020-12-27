@@ -31,9 +31,9 @@ const { remote } = window.require('electron')
 // console.log(join(saveLocation,'index.md'))
 const Store = window.require('electron-store')
 const fileStore = new Store({ 'name': 'Files Data' })
-const settingsStore = new Store({name: 'Settings'})
+const settingsStore = new Store({ name: 'Settings' })
 const saveLocation = remote.app.getPath('documents') + '/markdown/'
-console.log(settingsStore.get('saveFileLocation'),'path')
+console.log(settingsStore.get('saveFileLocation'), 'path')
 
 // store.set('name','张三丰')
 // store.delete('name')
@@ -125,8 +125,8 @@ const App = () => {
     }
 
     delete files[id]
-    setFiles({...files})
-    saveFilesToStore({...files})
+    setFiles({ ...files })
+    saveFilesToStore({ ...files })
   }
 
   // 点击右侧的tab切换显示markdown编辑器的内容
@@ -148,13 +148,13 @@ const App = () => {
       return
     }
 
-    console.log(openFileIDs.includes(id),'openFileIDs.includes(id)')
-    console.log(openFileIDs,'openFileIDs')
+    console.log(openFileIDs.includes(id), 'openFileIDs.includes(id)')
+    console.log(openFileIDs, 'openFileIDs')
     if (!openFileIDs.includes(id)) {
       setOpenFileIDs([...openFileIDs, id])
     }
     const currentFile = files[id]
-    console.log(currentFile,'currentFile')
+    console.log(currentFile, 'currentFile')
     if (!currentFile['body']) {
       fileHelper.readFile(currentFile['path'])
         .then(body => {
@@ -303,11 +303,6 @@ const App = () => {
                       minHeight: '460px',
                     }}
                   />
-                  <div className='row'>
-                    <div className="col-4">
-                      <BottonBtn text='保存' colorClass='btn-success no-border' icon={faFileImport} onBtnClick={handleSaveFile}></BottonBtn>
-                    </div>
-                  </div>
                 </>
               )
           }
