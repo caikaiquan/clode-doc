@@ -9,3 +9,13 @@ export const flattenArr = (arr) => {
 export const objToArr = (obj) => {
   return Object.keys(obj).map(key => obj[key])
 }
+
+export const findParentDom = (element, parentClass) => {
+  while(element){
+    if(element.classList.contains(parentClass)){
+      return element
+    }
+    element = element.parentNode
+  }
+  return false
+}

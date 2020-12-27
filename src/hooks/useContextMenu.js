@@ -4,7 +4,7 @@ const { remote } = window.require('electron')
 const { Menu, MenuItem } = remote
 
 // targetSelector 包含的dom元素才会弹出菜单
-const useContextMenu = (menuList, targetSelector) => {
+const useContextMenu = (menuList, targetSelector, deps) => {
   const clickedElement = useRef(null)
   useEffect(() => {
     const menu = new Menu();
@@ -21,8 +21,7 @@ const useContextMenu = (menuList, targetSelector) => {
     return () => {
       window.removeEventListener('contextmenu', handleContextMenu)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  })
   return clickedElement
 }
 

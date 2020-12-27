@@ -5,6 +5,7 @@ import { faEdit, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 import useKeyPress from '../../hooks/useKeyPress.js'
 import useContextMenu from '../../hooks/useContextMenu.js'
+import { findParentDom } from '../../utils/helper.js'
 
 // 引入node模块 Menu  MenuItem
 
@@ -19,9 +20,9 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
   const inputEl = useRef(null)
   const enterPressed = useKeyPress(13)
   const escPressed = useKeyPress(27)
-  const handleEdit = (file) => {
-    setEditStatus(file.id)
-    setFileName(file.title)
+  const handleEdit = (id, title) => {
+    setEditStatus(id)
+    setFileName(title)
   }
 
   const closeEdit = (file) => {
@@ -65,28 +66,45 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
     {
       label: '打开',
       click: () => {
-        console.log('点击了打开按钮' , clickedItem)
+        const parentElement = findParentDom(clickedItem.current, 'file-item');
+        const fileItem = parentElement.dataset;
+        if(fileItem){
+          let { id } = fileItem;
+          onClickFile(id)
+        }
       }
     },
     {
       label: '重命名',
       click: () => {
+        const parentElement = findParentDom(clickedItem.current, 'file-item');
+        const fileItem = parentElement.dataset;
+        if(fileItem){
+          let { id, title } = fileItem;
+          handleEdit(id, title)
+        }
         console.log('111重命名' , clickedItem)
       }
     },
     {
       label: '删除',
       click: () => {
+        const parentElement = findParentDom(clickedItem.current, 'file-item');
+        const fileItem = parentElement.dataset;
+        if(fileItem){
+          let { id } = fileItem;
+          onFileDelete(id)
+        }
         console.log('删除3333' , clickedItem)
       }
     }
   ], '.file-list')
 
   return (
-    <div className='file-list list-group list-group-flush file-list'>
+    <ul className='file-list list-group'>
       {
         files.map((file) => (
-          <div className='list-group-item bg-light d-flex align-items-center file-item row pointer mx-0' key={file.id}>
+          <li className='list-group-item bg-light d-flex align-items-center file-item row pointer mx-0 border-radius-0' key={file.id} data-id={file.id} data-title={file.title}>
             {
               editStatus !== file.id ?
                 (
@@ -95,12 +113,12 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
                     <span className='col-6 text-over d-flex align-items-center' title={file.title} onClick={() => { onClickFile(file.id) }}>
                       <span className='text-over input-line'>{file.title}</span>
                     </span>
-                    <button type='button' className='icon-button col-2' onClick={() => { handleEdit(file) }}>
+                    {/* <button type='button' className='icon-button col-2' onClick={() => { handleEdit(file.id, file.title) }}>
                       <FontAwesomeIcon icon={faEdit} title='编辑' />
                     </button>
                     <button type='button' className='icon-button col-2' onClick={() => { onFileDelete(file.id) }}>
                       <FontAwesomeIcon icon={faTrash} title='删除' />
-                    </button>
+                    </button> */}
                   </>
                 ) :
                 (
@@ -110,10 +128,10 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
                   </>
                 )
             }
-          </div>
+          </li>
         ))
       }
-    </div>
+    </ul>
   )
 }
 

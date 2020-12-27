@@ -141,10 +141,14 @@ const App = () => {
     if (activeFileID && files[activeFileID]['isNewStatus']) {
       return
     }
+
+    console.log(openFileIDs.includes(id),'openFileIDs.includes(id)')
+    console.log(openFileIDs,'openFileIDs')
     if (!openFileIDs.includes(id)) {
       setOpenFileIDs([...openFileIDs, id])
     }
     const currentFile = files[id]
+    console.log(currentFile,'currentFile')
     if (!currentFile['body']) {
       fileHelper.readFile(currentFile['path'])
         .then(body => {
