@@ -4,7 +4,7 @@ const { remote } = window.require('electron')
 const { Menu, MenuItem } = remote
 
 // targetSelector 包含的dom元素才会弹出菜单
-const useContextMenu = (menuList, targetSelector, deps) => {
+const useContextMenu = (menuList, targetSelector) => {
   const clickedElement = useRef(null)
   useEffect(() => {
     const menu = new Menu();
