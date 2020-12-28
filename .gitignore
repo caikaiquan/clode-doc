@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/dist/*
 /.pnp
 .pnp.js
 
@@ -25,3 +26,4 @@ yarn-error.log*
 .vscode
 .eslintcache
 package-lock.json
+dist/builder-effective-config.yaml

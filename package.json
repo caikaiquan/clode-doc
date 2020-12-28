@@ -18,6 +18,7 @@
     "@testing-library/user-event": "^12.5.0",
     "bootstrap": "^4.5.3",
     "classnames": "^2.2.6",
+    "electron-is-dev": "^1.2.0",
     "electron-store": "^6.0.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -51,7 +52,50 @@
       "./src/menuTemplate.js",
       "./src/AppWindow.js"
     ],
-    "extends": null
+    "directories": {
+      "buildResources": "assets"
+    },
+    "extends": null,
+    "mac": {
+      "category": "public.app-category.productivity",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "background": "assets/appdmg.png",
+      "icon": "assets/icon.icns",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 380,
+          "y": 280,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 110,
+          "y": 280,
+          "type": "file"
+        }
+      ],
+      "window": {
+        "width": 500,
+        "height": 500
+      }
+    },
+    "win": {
+      "target": [
+        "msi",
+        "nsis"
+      ],
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Web-Setup-${version}.${ext}",
+      "publisherName": "Caikaiquan"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": false
+    }
   },
   "eslintConfig": {
     "extends": [

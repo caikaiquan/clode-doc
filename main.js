@@ -35,7 +35,7 @@ app.on('ready', () => {
     }
 
     const settingsFileLocation = `file://${join(__dirname,'./settings/settings.html')}`
-    settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation)
+    let settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation)
 
     settingsWindow.on('closed', () => {
       settingsWindow = null
