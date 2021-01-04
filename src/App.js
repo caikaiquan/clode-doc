@@ -9,9 +9,6 @@ import BottonBtn from './components/BottonBtn/BottonBtn'
 import TabList from './components/TabList/TabList'
 import useIpcRenderer from './hooks/useIpcRenderer.js'
 
-// // moke数据
-// import defaultFiles from './utils/defaultFiles.js'
-
 // utils
 import { flattenArr, objToArr } from './utils/helper.js'
 
@@ -26,18 +23,10 @@ import fileHelper from './utils/fileHelper.js'
 // nodejs 模块
 const { join, basename, extname, dirname } = window.require('path')
 const { remote } = window.require('electron')
-// console.log(remote.app.getPath('documents'))
-// console.log(remote.app.getPath('home'))
-// console.log(join(saveLocation,'index.md'))
 const Store = window.require('electron-store')
 const fileStore = new Store({ 'name': 'Files Data' })
 const settingsStore = new Store({ name: 'Settings' })
-const saveLocation = remote.app.getPath('documents') + '/markdown/'
-console.log(settingsStore.get('saveFileLocation'), 'path')
-
-// store.set('name','张三丰')
-// store.delete('name')
-// console.log(store.get('name'),'store-name')
+const saveLocation = remote.app.getPath('documents') // 默认存到文档目录下
 
 // 存储文件数据到store
 const saveFilesToStore = (files) => {
