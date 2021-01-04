@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import SimpleMDE from 'react-simplemde-editor'
 import { faPlus, faFileImport } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid';
@@ -48,6 +48,9 @@ const saveFilesToStore = (files) => {
 console.log(fileStore.get('files'))
 
 const App = () => {
+  // 获取窗口高度
+  // console.log(window.innerHeight,'window.innerHeight1111')
+  const [ winHeight, setWinHeight ] = useState('');
   const [files, setFiles] = useState(fileStore.get('files') || {})
   const [searchFiles, setSearchFiles] = useState([])
   const [activeFileID, setActiveFileId] = useState('')
@@ -236,15 +239,26 @@ const App = () => {
       })
   }
 
-  // useEffect(() => {
-  //   const callback = () => {
-  //     console.log('hello from menu')
-  //   }
-  //   ipcRenderer.on('create-new-file',callback)
-  //   return () => {
-  //     ipcRenderer.removeListener('create-new-file',callback)
-  //   }
-  // })
+  // 窗口变化重新计算
+  const handleResize = (e) => {
+    const newWinHeight = window.innerHeight-150
+    setWinHeight(newWinHeight)
+    console.log('窗口变化重新计算',newWinHeight)
+    // console.log('浏览器窗口大小改变事件', e.target.innerHeight)
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  })
+
+  useEffect(() => {
+    // 获取浏览器高度 页面首次加载
+    const newWinHeight = window.innerHeight-150
+    setWinHeight(newWinHeight)
+  },[])
 
   useIpcRenderer({
     'create-new-file': handleAddNewFile,
@@ -289,7 +303,9 @@ const App = () => {
                     key={activeFile.id}
                     onChange={(value) => { handleEditMarkdown(activeFile.id, value) }}
                     options={{
-                      minHeight: '460px',
+                      minHeight: `${winHeight}px`,
+                      maxHeight: `${winHeight}px`,
+                      height: `${winHeight}px`
                     }}
                   />
                 </>

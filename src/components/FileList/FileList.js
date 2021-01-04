@@ -6,25 +6,27 @@ import { faMarkdown } from '@fortawesome/free-brands-svg-icons'
 import useKeyPress from '../../hooks/useKeyPress.js'
 import useContextMenu from '../../hooks/useContextMenu.js'
 import { findParentDom } from '../../utils/helper.js'
+import useWinResize from '../../hooks/useWinResize.js'
+
+// style
+import './FileList.css'
 
 // 引入node模块 Menu  MenuItem
 
 // const { remote } = window.require('electron')
 // const { Menu, MenuItem } = remote;
-
-
 const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
-
   const [editStatus, setEditStatus] = useState('');
   const [fileName, setFileName] = useState('');
   const inputEl = useRef(null)
   const enterPressed = useKeyPress(13)
   const escPressed = useKeyPress(27)
+  const { winHeight } = useWinResize()
+  const fileListStype = { height: `${winHeight-95}px`, overflowY: 'auto', }
   const handleEdit = (id, title) => {
     setEditStatus(id)
     setFileName(title)
   }
-
   const closeEdit = (file) => {
     setEditStatus('')
     setFileName('')
@@ -68,7 +70,7 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
       click: () => {
         const parentElement = findParentDom(clickedItem.current, 'file-item');
         const fileItem = parentElement.dataset;
-        if(fileItem){
+        if (fileItem) {
           let { id } = fileItem;
           onClickFile(id)
         }
@@ -79,11 +81,11 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
       click: () => {
         const parentElement = findParentDom(clickedItem.current, 'file-item');
         const fileItem = parentElement.dataset;
-        if(fileItem){
+        if (fileItem) {
           let { id, title } = fileItem;
           handleEdit(id, title)
         }
-        console.log('111重命名' , clickedItem)
+        console.log('111重命名', clickedItem)
       }
     },
     {
@@ -91,17 +93,17 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
       click: () => {
         const parentElement = findParentDom(clickedItem.current, 'file-item');
         const fileItem = parentElement.dataset;
-        if(fileItem){
+        if (fileItem) {
           let { id } = fileItem;
           onFileDelete(id)
         }
-        console.log('删除3333' , clickedItem)
+        console.log('删除3333', clickedItem)
       }
     }
   ], '.file-list')
 
   return (
-    <ul className='file-list list-group'>
+    <ul className='file-list list-group my_scro' style={fileListStype}>
       {
         files.map((file) => (
           <li className='list-group-item bg-light d-flex align-items-center file-item row pointer mx-0 border-radius-0' key={file.id} data-id={file.id} data-title={file.title}>
