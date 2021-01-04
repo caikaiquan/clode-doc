@@ -85,7 +85,6 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
           let { id, title } = fileItem;
           handleEdit(id, title)
         }
-        console.log('111重命名', clickedItem)
       }
     },
     {
@@ -97,7 +96,6 @@ const FileList = ({ files, onClickFile, onSaveEdit, onFileDelete }) => {
           let { id } = fileItem;
           onFileDelete(id)
         }
-        console.log('删除3333', clickedItem)
       }
     }
   ], '.file-list')

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import SimpleMDE from 'react-simplemde-editor'
 import { faPlus, faFileImport } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from 'uuid';
@@ -8,7 +8,7 @@ import FileList from './components/FileList/FileList.js'
 import BottonBtn from './components/BottonBtn/BottonBtn'
 import TabList from './components/TabList/TabList'
 import useIpcRenderer from './hooks/useIpcRenderer.js'
-
+import useWinResize from './hooks/useWinResize.js'
 // utils
 import { flattenArr, objToArr } from './utils/helper.js'
 
@@ -38,19 +38,14 @@ const saveFilesToStore = (files) => {
       title,
       createdAt
     }
-    // console.log(flattenArr)
     return result
   }, {})
   fileStore.set('files', filesStoreObj)
 }
 
-// fileStore.delete('files')
-console.log(fileStore.get('files'))
-
 const App = () => {
   // 获取窗口高度
-  // console.log(window.innerHeight,'window.innerHeight1111')
-  const [ winHeight, setWinHeight ] = useState('');
+  const { winHeight } = useWinResize()
   const [files, setFiles] = useState(fileStore.get('files') || {})
   const [searchFiles, setSearchFiles] = useState([])
   const [activeFileID, setActiveFileId] = useState('')
@@ -140,13 +135,10 @@ const App = () => {
       return
     }
 
-    console.log(openFileIDs.includes(id), 'openFileIDs.includes(id)')
-    console.log(openFileIDs, 'openFileIDs')
     if (!openFileIDs.includes(id)) {
       setOpenFileIDs([...openFileIDs, id])
     }
     const currentFile = files[id]
-    console.log(currentFile, 'currentFile')
     if (!currentFile['body']) {
       fileHelper.readFile(currentFile['path'])
         .then(body => {
@@ -191,7 +183,7 @@ const App = () => {
     }
     const title = files[activeFileID].title;
     const content = files[activeFileID].body;
-    const path = settingsStore.get('saveFileLocation') || saveLocation
+    const path = dirname(files[activeFileID].path);
     fileHelper.writeFile(join(path, `${title}.md`), content)
       .then(() => {
         console.log('write-success')
@@ -208,8 +200,6 @@ const App = () => {
       filters: [{ name: 'Markdown files', extensions: ['md'] }]
     })
       .then(result => {
-        // console.log(result.canceled)
-        // console.log(result.filePaths)
         const paths = result.filePaths;
         const filterPath = paths.filter(path => {
           const alreadyAdded = Object.values(files).find(file => file.path === path)
@@ -238,27 +228,6 @@ const App = () => {
         console.log(err)
       })
   }
-
-  // 窗口变化重新计算
-  const handleResize = (e) => {
-    const newWinHeight = window.innerHeight-150
-    setWinHeight(newWinHeight)
-    console.log('窗口变化重新计算',newWinHeight)
-    // console.log('浏览器窗口大小改变事件', e.target.innerHeight)
-  }
-
-  useEffect(() => {
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  })
-
-  useEffect(() => {
-    // 获取浏览器高度 页面首次加载
-    const newWinHeight = window.innerHeight-150
-    setWinHeight(newWinHeight)
-  },[])
 
   useIpcRenderer({
     'create-new-file': handleAddNewFile,
@@ -303,9 +272,9 @@ const App = () => {
                     key={activeFile.id}
                     onChange={(value) => { handleEditMarkdown(activeFile.id, value) }}
                     options={{
-                      minHeight: `${winHeight}px`,
-                      maxHeight: `${winHeight}px`,
-                      height: `${winHeight}px`
+                      minHeight: `${winHeight - 150}px`,
+                      maxHeight: `${winHeight - 150}px`,
+                      height: `${winHeight -150}px`
                     }}
                   />
                 </>
