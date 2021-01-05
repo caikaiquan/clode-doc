@@ -10,4 +10,4 @@ npm run dev
 npm run pack
 ```
 
-### 
+### 准备研究自动同步功能

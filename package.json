@@ -115,6 +115,7 @@
     "electron": "^11.1.0",
     "electron-builder": "^22.9.1",
     "electron-is-dev": "^1.2.0",
+    "node-cmd": "^4.0.0",
     "node-sass": "^4.14.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

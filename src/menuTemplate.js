@@ -84,13 +84,13 @@ let template = [{
     label: '全部同步至云端',
     enabled: qiniuIsConfiged,
     click: () => {
-      ipcMain.emit('upload-all-to-qiniu')
+      ipcMain.emit('upload-all-to-github')
     }
   }, {
     label: '从云端下载到本地',
     enabled: qiniuIsConfiged,
     click: () => {
-      
+      ipcMain.emit('download-all-from-github')
     }
   }]
 },
