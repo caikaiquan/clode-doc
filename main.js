@@ -33,7 +33,9 @@ app.on('ready', () => {
       height: 400,
       parent: mainWindow
     }
-    const settingsFileLocation = `file://${join(__dirname,'./settings/settings.html')}`
+    // 生产环境设置页面打不开
+    const settingUrl = isDev ? './settings/settings.html' : "../settings/settings.html"
+    const settingsFileLocation = `file://${join(__dirname, settingUrl)}`
     let settingsWindow = new AppWindow(settingsWindowConfig, settingsFileLocation)
 
     settingsWindow.on('closed', () => {
